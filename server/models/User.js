@@ -2,7 +2,7 @@
 
 import mongoose from 'mongoose'
 
-const userSchema = new mongoose.model({
+const userSchema = new mongoose.Schema({
     username: {
         type: String,
         required: [true, 'Username is required'],
@@ -47,13 +47,13 @@ const userSchema = new mongoose.model({
         },
 
         dateUpdated: {
-            type: data,
+            type: Date,
             default: Date.now
         }
     }]
 
 }, {
-    timeStamps: true
+    timestamps: true
 });
 
 

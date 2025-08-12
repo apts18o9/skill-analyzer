@@ -6,6 +6,8 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import connectDB from "./config/db.js";
 import { driver as neo4jDriver } from "./config/neo4j.js";
+import authRoutes from "./routes/authRoutes.js"
+import userRoutes from "./routes/userRoutes.js"
 
 dotenv.config()
 
@@ -18,6 +20,16 @@ connectDB() //db connect
 
 app.get('/', (req, res) => {
     res.send('backend is running')
+})
+
+//routes
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+
+//error handling(middleware)
+app.use((err, req, res,next) => {
+    console.err(err.stack);
+    res.status(500).send('Something wrong')
 })
 
 const PORT = process.env.PORT || 5000;
