@@ -1,5 +1,5 @@
 //user profile route
-
+//routes to update user profile
 import express from "express"
 import { protect } from "../middleware/authMiddleware.js"
 import { getNeo4jSession } from "../config/neo4j.js"

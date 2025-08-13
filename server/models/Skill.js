@@ -24,7 +24,7 @@ const skillSchema = new mongoose.Schema({
 });
 
 
-skillSchema.index({name: 1}) //for faster lookups
+// skillSchema.index({name: 1}) //for faster lookups
 
 const Skill = mongoose.model('Skill', skillSchema)
 export default Skill;
