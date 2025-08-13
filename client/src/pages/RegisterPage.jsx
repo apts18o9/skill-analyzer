@@ -1,0 +1,54 @@
+import React, { useState, useContext } from 'react';
+import AuthContext from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+
+const RegisterPage = () => {
+  const [formData, setFormData] = useState({ username: '', email: '', password: '' });
+  const { register } = useContext(AuthContext); // Get the register function from context
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await register(formData.username, formData.email, formData.password);
+      navigate('/profile'); 
+    } catch (err) {
+      alert(err.response.data.message);
+    }
+  };
+
+   return (
+    <div className="flex justify-center items-center">
+      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Create an Account</h2>
+        <form onSubmit={handleSubmit}>
+         
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">Username</label>
+            <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="username" type="text" name="username" value={formData.username} onChange={handleChange} placeholder="Username"/>
+          </div>
+         
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">Email</label>
+            <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="email" type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email"/>
+          </div>
+       
+          <div className="mb-6">
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">Password</label>
+            <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="password" type="password" name="password" value={formData.password} onChange={handleChange} placeholder="******************"/>
+          </div>
+        
+          <div className="flex items-center justify-between">
+            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full" type="submit">Sign Up</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default RegisterPage;
