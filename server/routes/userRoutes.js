@@ -43,7 +43,7 @@ router.put('/profile', protect, async (req, res) => {
 
         let validatedCurrentSkills = [];
         if(currentSkills && Array.isArray(currentSkills)){
-            validatedCurrentSkills = currentSkills.map(s => String(s).trim()).filter(boolean) //clean
+            validatedCurrentSkills = currentSkills.map(s => String(s).trim()).filter(Boolean) //clean
         }
 
         let validatedDesiredRoles = [];
