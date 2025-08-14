@@ -1,11 +1,8 @@
 //connecting to backend via axios
-
 import React, {createContext, useState, useEffect} from "react"
 import axios from "axios"
 
-
 const AuthContext = createContext(); //make AuthContext as context
-
 
 export const AuthProvider = ({children}) => {
     const [user, setUser] = useState(null)
@@ -81,7 +78,53 @@ export const AuthProvider = ({children}) => {
         }
     }
 
-    const value = {user, login, logout, register, loading} //pass this as obj
+
+    //function to get current user profile
+
+    const getProfile = async (token) => {
+        try {
+            const res = await axios.get('http://localhost:5000/api/users/profile', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            setUser(res.data)
+            return res.data;
+            
+        } catch (error) {
+            console.error('Failed to fetch profile', error);
+            logout();
+            throw error;
+            
+        }
+    }
+    
+    //to update user's profile
+
+    const updateProfile = async (profileData) => {
+        const token = localStorage.getItem('token');
+        if(!token) throw new Error('No token found')
+
+        try {
+            const res = await axios.put('http://localhost:5000/api/users/profile', profileData,  {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            setUser(res.data.user)
+            return res.data
+        } catch (error) {
+            console.error('Failed to update profile', error);
+            throw error;
+            
+        }
+    }
+    
+
+    const value = {user, login, logout, register, updateProfile, getProfile, loading} //pass this as obj
 
     return (
         <AuthContext.Provider value={value}>
