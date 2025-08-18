@@ -10,15 +10,19 @@ dotenv.config();
 
 const protect = async (req, res, next) => {
     let token;
+    console.log('Authorization header received: ', req.headers.authorization);
 
+
+    console.log('JWT_SECRET:', process.env.JWT_SECRET);
+ 
     //check if authorization start with 'Bearer' token
 
-    if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')){
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         try {
-            
+
             //get token from header
             token = req.headers.authorization.split(' ')[1];
-
+             console.log('Token:', token);
             const verify = jwt.verify(token, process.env.JWT_SECRET);
 
             req.user = await User.findById(verify.id).select('-password');
@@ -27,14 +31,14 @@ const protect = async (req, res, next) => {
 
         } catch (error) {
             console.error('Not authorized, token fail', error.message);
-            return res.status(401).json({message: 'Not authorized, token fail'})
-            
+            return res.status(401).json({ message: 'Not authorized, token fail' })
+
         }
     }
 
-    if(!token){
-        return res.status(401).json({message: 'Not authorzied, no valid token'})
+    if (!token) {
+        return res.status(401).json({ message: 'Not authorzied, no valid token' })
     }
 }
 
-export {protect}
+export { protect }

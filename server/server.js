@@ -1,5 +1,4 @@
 //main server file
-
 import mongoose from "mongoose";
 import express from  'express'
 import cors from 'cors'
@@ -8,6 +7,7 @@ import connectDB from "./config/db.js";
 import { driver as neo4jDriver } from "./config/neo4j.js";
 import authRoutes from "./routes/authRoutes.js"
 import userRoutes from "./routes/userRoutes.js"
+import analyzeRoutes from "./routes/analyzeRoutes.js"
 
 dotenv.config()
 
@@ -25,10 +25,11 @@ app.get('/', (req, res) => {
 //routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/analyze', analyzeRoutes)
 
 //error handling(middleware)
 app.use((err, req, res,next) => {
-    console.err(err.stack);
+    console.error(err.message)
     res.status(500).send('Something wrong')
 })
 
