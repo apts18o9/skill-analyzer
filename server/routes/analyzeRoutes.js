@@ -1,9 +1,11 @@
-//route for Ai model to extract data 
+//route for AI model to extract data and storing in neo4j and db
 
 import express from "express"
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import dotenv from "dotenv"
 import { protect } from "../middleware/authMiddleware.js"
+import User from "../models/User.js";
+import { driver } from "../config/neo4j.js";
 
 dotenv.config()
 
@@ -12,13 +14,9 @@ const router = express.Router();
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-// function sleep(ms) {
-//     return new Promise(resolve => setTimeout(resolve, ms)); 
-// }
-
-//route to generate llm based answer
 router.post('/text', protect, async (req, res) => {
-    const { text } = req.body;
+    const { text } = req.body; //extract the text from user input
+    const session = driver.session();
 
     if (!text) {
         return res.status(400).json({ message: 'Text is required for analysis' });
@@ -38,15 +36,6 @@ router.post('/text', protect, async (req, res) => {
             "${text}"
         `;
 
-        // await sleep(2000);
-
-        // const completion = await openai.chat.completions.create({
-        //     model: 'gpt-3.5-turbo',
-        //     messages: [{role: 'user', content: prompt}],
-        //     response_format: {type: 'json_object'},
-        //     temperature: 0
-        // });
-
         const result = await model.generateContent(prompt);
         let content = result.response.text();
 
@@ -59,17 +48,52 @@ router.post('/text', protect, async (req, res) => {
 
         const parsedResult = JSON.parse(content);
 
-        res.status(200).json(parsedResult);
-        //return extracted skills and roles 
+        //adding the roles and skills to neo4j and mongodb
+        const { skills, roles } = parsedResult;
+
+        //updating transactions in neo4j(nodes)
+        await session.executeWrite(async (tx) => {
+            // MERGE or create Skill nodes and link to the user
+            for (const skillName of skills) {
+                const query = `
+                    MATCH (u:User {mongodb_id: $userId})
+                    MERGE (s:Skill {name: $skillName})
+                    MERGE (u)-[:HAS_SKILL]->(s)
+                    RETURN s
+                `;
+                await tx.run(query, { userId: req.user._id.toString(), skillName });
+                console.log(`- Created or found skill: ${skillName}`);
+            }
+
+            // MERGE or create Role nodes and link to the user(neo4j cypher queries)
+            for (const roleName of roles) {
+                const query = `
+                    MATCH (u:User {mongodb_id: $userId})
+                    MERGE (r:Role {name: $roleName})
+                    MERGE (u)-[:DESIRES_ROLE]->(r)
+                    RETURN r
+                `;
+                await tx.run(query, { userId: req.user._id.toString(), roleName });
+                console.log(`- Created or found role: ${roleName}`);
+            }
+        });
+
+        //updating user in mongodb
+        const user = await User.findById(req.user._id);
+        user.currentSkills = skills;
+        user.desiredRoles = roles;
+        await user.save();
+
+        console.log('Database sync done');
 
         res.status(200).json(parsedResult);
-
-        //todo: add logic of synchronization to neo4j and db 
 
     } catch (error) {
         console.error('GeminiAPI error', error.message);
         res.status(500).json({ message: 'Error during text analysis', error: error.message })
 
+    } finally {
+        await session.close();
     }
 });
 
