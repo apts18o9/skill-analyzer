@@ -21,9 +21,13 @@ const Header = () => {
         <ul className="flex space-x-4">
           {user ? (
             <>
-              <li>
-                <Link to="/profile" className="text-gray-600 hover:text-blue-500 transition">Profile</Link>
+              <li
+              className='text-black'>
+              Welcome, {user.username}  
               </li>
+              {/* <li>
+                <Link to="/profile" className="text-gray-600 hover:text-blue-500 transition">Profile</Link>
+              </li> */}
               <li>
                 <button onClick={handleLogout} className="text-gray-600 hover:text-blue-500 transition">Logout</button>
               </li>
