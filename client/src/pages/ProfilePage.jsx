@@ -99,7 +99,7 @@ const ProfilePage = () => {
     <div className="max-w-4xl mx-auto p-6">
       <div className="text-center mb-8">
         <h2 className="text-4xl font-bold text-gray-800">User Profile</h2>
-        <p className="text-lg text-gray-600 mt-2">Welcome, {user?.username}!</p>
+        {/* <p className="text-lg text-gray-600 mt-2">Welcome, {user?.username}!</p> */}
       </div>
 
       <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 mb-6">
